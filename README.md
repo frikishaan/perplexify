@@ -66,8 +66,8 @@ Update the `.env` file with your credentials and configurations.
 1. **GOOGLE_API_KEY** - Your Google Cloud API Key
 2. **GOOGLE_CSE_ID** - Your Google Custom Search Engine ID
 3. **TOP_RESOURCES_TO_READ** - The number of resources to read from the search results
-4. **TOP_K_CHUNKS** - The number of chunks to read from each resource
-5. **MAX_TOKEN_PER_CHUNK** - The maximum number of tokens per chunk
+4. **TOP_K_CHUNKS** - The number of chunks to read from each resource (this affects the prompt length for LLM)
+5. **MAX_TOKEN_PER_CHUNK** - The maximum number of tokens per chunk (this affects the prompt length for LLM)
 6. **USE_COSINE_SIMILARITY** - A boolean value to enable cosine similarity (this may increase the response time).
 7. **EMBEDDING_MODEL** - The embedding model to use
 8. **EMBEDDING_DIMENSIONS** - The embedding dimensions (higher dimensions may increase the response time).
