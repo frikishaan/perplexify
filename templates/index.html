@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perplexify</title>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=hanken-grotesk:300,400,400i,500,600,700,800,900" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.0/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * {
+            font-family: 'Hanken Grotesk', sans-serif;
+        }
+        .prose p,
+        .prose li {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body x-data="app()" class="bg-[#fcfcf9] dark:bg-gray-900">
+    <div class="container mx-auto p-4 min-h-[70vh] flex flex-col justify-center">
+        <h1 class="text-4xl font-bold text-center text-gray-800 dark:text-white tracking-widest">
+            Perplexify
+        </h1>
+        <div class="mt-8" x-show="formVisible">
+            <div class="max-w-2xl mx-auto">
+                <form id="search-form" @submit.prevent="startSearch">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <input type="search" id="search-input" x-model="query"
+                            class="block w-full p-4 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-teal-500 focus:border-teal-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-teal-500 dark:focus:border-teal-500 outline-none"
+                            placeholder="Ask anything..." autocomplete="off" required>
+                        <button type="submit"
+                            class="text-white absolute right-2.5 bottom-2.5 bg-teal-600 hover:bg-teal-500 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800"
+                            aria-label="search">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-sparkles-icon lucide-sparkles">
+                                <path
+                                    d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
+                                <path d="M20 2v4" />
+                                <path d="M22 4h-4" />
+                                <circle cx="4" cy="20" r="2" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div x-show="suggestionVisible" class="w-full max-w-2xl mx-auto mt-8" x-data="{
+            suggestions: [
+                {
+                    'icon': '🧠',
+                    'text': 'Explain how large language models work'
+                },
+                {
+                    'icon': '📱',
+                    'text': 'compare iphone 17 and 16'
+                },
+                {
+                    'icon': '🚀',
+                    'text': 'How do astronauts sleep in space?'
+                },
+                {
+                    'icon': '💰',
+                    'text': 'Explain inflation like I\'m five'
+                },
+            ],
+            handleSuggestionClick: function (suggestion) {
+                this.query = suggestion;
+                this.startSearch();
+            }
+        }
+        ">
+            <h2 class="text-sm font-medium text-gray-600 mb-3 text-center mb-4">
+                Or try these queries
+            </h2>
+            <ul class="flex justify-center flex-wrap gap-2">
+                <template x-for="suggestion in suggestions">
+                    <button
+                        type="button"
+                        class="bg-gray-200 hover:bg-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        x-text="suggestion.icon + ' ' + suggestion.text"
+                        @click="handleSuggestionClick(suggestion.text)"
+                    ></button>
+                </template>
+            </ul>
+        </div>
+
+        <div id="statusContainer" x-show="statusVisible" x-transition class="w-full max-w-2xl mx-auto mt-8 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <!-- Collapsible Header -->
+            <button id="statusToggle" @click="showSteps = !showSteps"
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between text-left">
+                <div class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                    <div class="w-5 h-5 rounded-full flex items-center justify-center">
+                        <span class="status-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                :class="{'rotate-180': showSteps}"
+                                class="lucide lucide-chevron-down transition-transform duration-200">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </span>
+                    </div>
+                    <span class="font-medium">Steps</span>
+                </div>
+                <span class="text-sm text-gray-500 dark:text-gray-400 sr-only">Click to expand</span>
+            </button>
+
+            <!-- Collapsible Content -->
+            <div id="statusContent"
+                x-show="showSteps"
+                x-transition
+                class="bg-white dark:bg-gray-800 transition-all duration-200 ease-in-out overflow-hidden ">
+                <div class="p-4 pt-2">
+                    <div x-ref="searchingSection" class="mb-6">
+                        <h2 class="text-sm font-medium text-gray-600 mb-3">
+                            Searching
+                        </h2>
+                        <div class="flex items-center gap-3 bg-gray-200 inline-flex px-4 py-2 rounded-lg">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.35-4.35"></path>
+                            </svg>
+                            <span class="text-sm" x-text="query"></span>
+                        </div>
+                    </div>
+
+                    <div x-ref="reviewingSection" class="mb-6 hidden">
+                        <h2 class="text-sm font-medium text-gray-600 mb-4">Reviewing sources · <span x-text="resources.length"></span></h2>
+
+                        <div id="resourceSection" class="space-y-1 border border-gray-300 rounded-lg shadow-sm px-2 py-1">
+                            <template x-for="(resource, idx) in resources" :key="idx">
+                                <a :href="resource.link" target="_blank"
+                                   class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer border border-transparent">
+                                    <div class="flex items-center gap-3 basis[60%] min-w-0">
+                                        <div class="rounded-full flex items-center justify-center flex-shrink-0">
+                                            <img :src="`https://www.google.com/s2/favicons?sz=128&domain=${new URL(resource.link).hostname}`"
+                                                 alt="favicon" class="w-[24px] h-[24px] rounded-full">
+                                        </div>
+                                        <span class="text-md text-gray-900 truncate" x-text="resource.title"></span>
+                                    </div>
+                                    <span 
+                                        class="text-xs text-gray-500 text-right basis-[40%]" 
+                                        x-text="new URL(resource.link).host.replace('www.', '').split('.').slice(0, -1).join('.')">
+                                    </span>
+                                </a>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div x-ref="finishedSection" class="mt-6 hidden">
+                        <h2 class="text-sm font-medium text-gray-600 mb-3 flex items-center gap-x-1">
+                            <span class="text-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="lucide lucide-circle-check-icon lucide-circle-check">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="m9 12 2 2 4-4" />
+                                </svg>
+                            </span>
+                            Finished
+                        </h2>
+                    </div>
+
+                    <div x-ref="loaderSection" class="mt-6" >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader-circle-icon lucide-loader-circle animate-spin text-teal-600"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="responseSection" x-show="responseVisible" x-transition class="prose mt-8 w-full max-w-2xl mx-auto text-gray-800 dark:text-white">
+            <div id="responseText" x-html="responseHtml"></div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('app', app);
+        });
+
+        function app() {
+            return {
+                // State
+                query: '',
+                formVisible: true,
+                suggestionVisible: true,
+                statusVisible: false,
+                responseVisible: false,
+                showSteps: false,
+                resources: [],
+                markdownBuffer: '',
+                responseHtml: '',
+                eventSource: null,
+
+                // Actions
+                startSearch() {
+                    if (this.eventSource) {
+                        this.eventSource.close();
+                    }
+
+                    this.formVisible = false;
+                    this.statusVisible = true;
+                    this.responseVisible = false;
+                    this.showSteps = true;
+                    this.resources = [];
+                    this.markdownBuffer = '';
+                    this.responseHtml = 'Loading...';
+
+                    const url = `/api/search?query=${encodeURIComponent(this.query)}`;
+                    const es = new EventSource(url);
+                    this.eventSource = es;
+                    this.responseHtml = '';
+                    this.suggestionVisible = false;
+
+                    es.addEventListener('search', (event) => {
+                        this.$refs.reviewingSection.classList.remove('hidden');
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.resources = Array.isArray(data) ? data : [];
+                        } catch (e) {
+                            console.error('Failed to parse search event', e);
+                            this.resources = [];
+                        }
+                    });
+
+                    // Configure marked to preserve newlines
+                    marked.setOptions({
+                        breaks: true,
+                        gfm: true,
+                        smartLists: true,
+                        smartypants: true,
+                    });
+
+                    es.onmessage = (event) => {
+                        this.$refs.loaderSection.classList.add('hidden');
+                        this.responseVisible = true;
+                        this.showSteps = false;
+
+                        let data;
+                        try {
+                            data = JSON.parse(event.data);
+                        } catch (e) {
+                            console.error('Failed to parse message', e);
+                            return;
+                        }
+
+                        this.markdownBuffer += (data?.content ?? '');
+
+                        // Replace [n] citations with links to resources[n-1]
+                        const withCitations = this.markdownBuffer.replace(/\[(\d+)\]/g, (match, num) => {
+                            const idx = Number(num) - 1;
+                            const r = this.resources[idx];
+                            if (!r || !r.link) return match;
+                            try {
+                                const host = new URL(r.link).host.replace('www.', '').split('.').slice(0, -1).join('.');
+                                return `<a href="${r.link}" class=\"citation bg-gray-200 hover:bg-teal-600 rounded-xl px-[6px] pt-[2px] pb-[5px] m-[2px] text-[13px] font-normal hover:underline text-gray-600 hover:text-white no-underline hover:no-underline\" title=\"${r.title ?? ''}\" target=\"_blank\">${host}</a>`;
+                            } catch {
+                                return match;
+                            }
+                        });
+
+                        this.responseHtml = marked.parse(withCitations);
+                    };
+
+                    es.onerror = () => {
+                        es.close();
+                        if (!this.responseHtml) {
+                            this.responseHtml = 'An error occurred while streaming the response.';
+                        }
+                    };
+                },
+
+                stop() {
+                    if (this.eventSource) {
+                        this.eventSource.close();
+                        this.eventSource = null;
+                    }
+                },
+            };
+        }
+    </script>
+</body>
+
+</html>
