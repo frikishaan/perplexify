@@ -1,5 +1,9 @@
 # Perplexify
 
+<p align="center">
+   <img src="./screenshot.png" />
+</p>
+
 Perplexify is a demo search engine inspired by [Perplexity AI](https://www.perplexity.ai/), built to showcase the process of [retrieval-augmented generation (RAG)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation). It uses Google Custom Search Engine (CSE) to fetch relevant webpages for a user query, then extracts and processes their content to generate concise, context-aware answers.
 
 Perplexify retrieves the search results' URLs, fetches and chunks their content, ranks them using [BM25](https://en.wikipedia.org/wiki/Okapi_BM25) and [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity), and combines results through Reciprocal Rank Fusion (RRF). The top-ranked chunks are then added to a prompt and used to generate a final, well-informed answer with citations.
