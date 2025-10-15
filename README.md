@@ -14,7 +14,7 @@ This project is purely a demonstration of search retrieval and ranking technique
 
 Here is a demo video of Perplexify in action:
 
-<video src="./demo.mp4" controls></video>
+<video src="https://github.com/user-attachments/assets/65c330bf-4a71-4235-81e4-2149789c9f2e" controls></video>
 
 ## Prerequisites
 
