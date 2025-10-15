@@ -10,6 +10,12 @@ Perplexify retrieves the search results' URLs, fetches and chunks their content,
 
 This project is purely a demonstration of search retrieval and ranking techniques integrated with large language model prompting — **not** a production-ready application.
 
+## Demo
+
+Here is a demo video of Perplexify in action:
+
+<video src="./demo.mp4" controls></video>
+
 ## Prerequisites
 
 Before installation, you'll need to set up the following:
