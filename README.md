@@ -98,7 +98,7 @@ The search in **Perplexify** is powered by the Google Custom Search API.
 1. **Query Submission:** When a user submits a query, the app sends a request to the Google Custom Search API to retrieve relevant search results.
 2. **Content Extraction:** The URLs from the search results are fetched, and their content is extracted with proper error handling and timeouts.
 3. **Chunking:** Extracted content is split into smaller, meaningful chunks using [spaCy](https://spacy.io/), ensuring that sentences are not split mid-way and that each chunk preserves coherent context for better relevance and ranking.
-4. **Ranking:** Chunks are ranked using **BM25**. Optionally, you can enable **cosine similarity** in the `.env` file to rank chunks based on embedding similarity.
+4. **Ranking:** Chunks are ranked using **BM25**. Optionally, you can enable **cosine similarity** in the `.env` file to rank chunks based on embedding similarity. The purpose of ranking is to select only the top chunks—rather than the entire extracted content—for the LLM context, which has limited capacity.
 5. **Fusion:** If both BM25 and cosine similarity are used, **Reciprocal Rank Fusion (RRF)** combines the rankings to prioritize the most relevant chunks.
 6. **Answer Generation:** The top-ranked chunks are added to the prompt for LLM to generate a final, context-aware answer.
 
